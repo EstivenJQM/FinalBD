@@ -164,17 +164,50 @@ public class ManejadorSedes {
         // Se pide el código de la sede a eliminar
         int codigoEliminar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la sede a eliminar"));
 
-        // Crear un filtro de eliminación para buscar por el código de la sede
-        Bson filtro = Filters.eq("cod_sede", codigoEliminar);
 
-        // Eliminar la sede utilizando el filtro
-        DeleteResult resultado = sedesCollection.deleteOne(filtro);
 
-        // Verificar si se eliminó correctamente la sede
-        if (resultado.getDeletedCount() > 0) {
-            JOptionPane.showMessageDialog(null, "La sede se eliminó correctamente.");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se encontró una sede con el código especificado.");
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
+
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Consulta SQL de eliminación de sede
+            String sql = "DELETE FROM SEDES WHERE COD_SEDE = ?";
+            PreparedStatement declaración = conexión.prepareStatement(sql);
+
+            // Valor para la eliminación
+            declaración.setInt(1, codigoEliminar); // Código de la sede a eliminar
+
+            int filasEliminadas = declaración.executeUpdate();
+            if (filasEliminadas > 0) {
+                JOptionPane.showMessageDialog(null, "La sede se eliminó correctamente de postgres.");
+
+                //Borrado Mongo
+                // Crear un filtro de eliminación para buscar por el código de la sede
+                Bson filtro = Filters.eq("cod_sede", codigoEliminar);
+
+                // Eliminar la sede utilizando el filtro
+                DeleteResult resultado = sedesCollection.deleteOne(filtro);
+
+                // Verificar si se eliminó correctamente la sede
+                if (resultado.getDeletedCount() > 0) {
+                    JOptionPane.showMessageDialog(null, "La sede se eliminó correctamente de mongo.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontró una sede con el código especificado.");
+                }
+            } else {
+                System.out.println("No se encontró la sede a eliminar.");
+            }
+
+            declaración.close();
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
+
     }
 }

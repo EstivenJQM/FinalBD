@@ -19,15 +19,18 @@ public class Main {
         }
 
     public static void Menu() {
+        int op;
 
-        int op = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
+        do {
+
+         op = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
                 "1. Departamentos\n" +
                 "2. Ciudades\n" +
                 "3. Sedes\n" +
                 "4. Empleados\n" +
                 "0. salir"));
 
-        do {
+
             switch (op) {
 
                 case 1:
@@ -47,6 +50,7 @@ public class Main {
                     break;
                 default:
                     JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
+
             }
 
         } while (op != 0);

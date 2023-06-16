@@ -165,17 +165,48 @@ public class ManejadorCiudades {
         // Se pide el código de la ciudad a eliminar
         int codigoEliminar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la ciudad a eliminar"));
 
-        // Crear un filtro de eliminación para buscar por el código de la cuidad
-        Bson filtro = Filters.eq("cod_ciudad", codigoEliminar);
 
-        // Eliminar la ciudad utilizando el filtro
-        DeleteResult resultado = ciudadesCollection.deleteOne(filtro);
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
 
-        // Verificar si se eliminó correctamente la cuidad
-        if (resultado.getDeletedCount() > 0) {
-            JOptionPane.showMessageDialog(null, "La ciudad se eliminó correctamente.");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se encontró una ciudad con el código especificado.");
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Consulta SQL de eliminación de ciudad
+            String sql = "DELETE FROM CIUDADES WHERE COD_CIUDAD = ?";
+            PreparedStatement declaración = conexión.prepareStatement(sql);
+
+            // Valor para la eliminación
+            declaración.setInt(1, codigoEliminar); // Código de la ciudad a eliminar
+
+            int filasEliminadas = declaración.executeUpdate();
+            if (filasEliminadas > 0) {
+                JOptionPane.showMessageDialog(null, "La ciudad se eliminó correctamente de postgres.");
+
+                //Borrado Mongo
+                // Crear un filtro de eliminación para buscar por el código de la cuidad
+                Bson filtro = Filters.eq("cod_ciudad", codigoEliminar);
+
+                // Eliminar la ciudad utilizando el filtro
+                DeleteResult resultado = ciudadesCollection.deleteOne(filtro);
+
+                // Verificar si se eliminó correctamente la cuidad
+                if (resultado.getDeletedCount() > 0) {
+                    JOptionPane.showMessageDialog(null, "La ciudad se eliminó correctamente de mongo.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontró una ciudad con el código especificado.");
+                }
+
+            } else {
+                System.out.println("No se encontró la ciudad a eliminar.");
+            }
+
+            declaración.close();
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

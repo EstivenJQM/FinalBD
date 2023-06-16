@@ -66,8 +66,7 @@ public class ManejadorEmpleados {
             declaraciónSedes.setString(1, identificacion); // Valor para ID_EMPLEADO
             declaraciónSedes.setString(2, nombres); // Valor para NOMBRES
             declaraciónSedes.setString(3, apellidos); // Valor para APELLIDO
-            declaraciónS
-        edes.setString(4, email); // Valor para EMAIL
+            declaraciónSedes.setString(4, email); // Valor para EMAIL
             declaraciónSedes.setInt(5, codigoFk); // Valor para COD_CIUDAD
             declaraciónSedes.setInt(6, codigoFk2); // Valor para COD_SEDE
             declaraciónSedes.executeUpdate();
@@ -192,17 +191,49 @@ public class ManejadorEmpleados {
         // Se pide el código de el empleado a eliminar
         String codigoEliminar = JOptionPane.showInputDialog(null, "Por favor ingrese el código del empleado a eliminar");
 
-        // Crear un filtro de eliminación para buscar por el código de el empleado
-        Bson filtro = Filters.eq("id_empleado", codigoEliminar);
 
-        // Eliminar la empleado utilizando el filtro
-        DeleteResult resultado = empleadosCollection.deleteOne(filtro);
 
-        // Verificar si se eliminó correctamente el empleado
-        if (resultado.getDeletedCount() > 0) {
-            JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente.");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se encontró una empleado con el código especificado.");
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
+
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Consulta SQL de eliminación de empleado
+            String sql = "DELETE FROM EMPLEADOS WHERE ID_EMPLEADO = ?";
+            PreparedStatement declaración = conexión.prepareStatement(sql);
+
+            // Valor para la eliminación
+            declaración.setString(1, codigoEliminar); // ID del empleado a eliminar
+
+            int filasEliminadas = declaración.executeUpdate();
+            if (filasEliminadas > 0) {
+                JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente de postgres.");
+
+                //Borrado Mongo
+                // Crear un filtro de eliminación para buscar por el código de el empleado
+                Bson filtro = Filters.eq("id_empleado", codigoEliminar);
+
+                // Eliminar la empleado utilizando el filtro
+                DeleteResult resultado = empleadosCollection.deleteOne(filtro);
+
+                // Verificar si se eliminó correctamente el empleado
+                if (resultado.getDeletedCount() > 0) {
+                    JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente de mongo.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontró una empleado con el código especificado.");
+                }
+
+            } else {
+                System.out.println("No se encontró el empleado a eliminar.");
+            }
+
+            declaración.close();
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
     }

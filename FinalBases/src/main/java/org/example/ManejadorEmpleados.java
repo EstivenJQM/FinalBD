@@ -8,6 +8,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import javax.swing.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,22 +35,49 @@ public class ManejadorEmpleados {
         String nombres = JOptionPane.showInputDialog(null, "Por favor ingrese el nombre");
         String apellidos = JOptionPane.showInputDialog(null, "Por favor ingrese los apellidos");
         String email = JOptionPane.showInputDialog(null, "Por favor ingrese el email");
-        int codigoFk = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la sede"));
-        int codigoFk2 = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la ciudad"));
+        int codigoFk = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la ciudad"));
+        int codigoFk2 = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la sede"));
 
         // Crear un nuevo documento
         Document empleado = new Document("id_empleado", identificacion)
                 .append("nom_empleado", nombres)
                 .append("ape_empleado", apellidos)
                 .append("email_empleado", email)
-                .append("cod_sede", codigoFk)
-                .append("cod_ciudad", codigoFk2);
+                .append("cod_ciudad", codigoFk)
+                .append("cod_sede", codigoFk2);
 
         // Insertar el documento en la colección
         empleadosCollection.insertOne(empleado);
 
         // Cerrar la conexión
         mongoClient.close();
+
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
+
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Ejemplo de inserción en la tabla EMPLEADOS
+            String sqlSedes = "INSERT INTO EMPLEADOS (ID_EMPLEADO, NOMBRES, APELLIDOS, EMAIL, COD_CIUDAD, COD_SEDE) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement declaraciónSedes = conexión.prepareStatement(sqlSedes);
+            declaraciónSedes.setString(1, identificacion); // Valor para ID_EMPLEADO
+            declaraciónSedes.setString(2, nombres); // Valor para NOMBRES
+            declaraciónSedes.setString(3, apellidos); // Valor para APELLIDO
+            declaraciónS
+        edes.setString(4, email); // Valor para EMAIL
+            declaraciónSedes.setInt(5, codigoFk); // Valor para COD_CIUDAD
+            declaraciónSedes.setInt(6, codigoFk2); // Valor para COD_SEDE
+            declaraciónSedes.executeUpdate();
+
+            // Realiza inserciones similares para las otras tablas
+
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

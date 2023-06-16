@@ -1,4 +1,5 @@
 package org.example;
+//MONGO
 
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
@@ -7,6 +8,12 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+//POSTGRESQL
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -18,6 +25,7 @@ public class ManejadorDepartamentos {
 
     public static void ingresarDepartamento() {
 
+        //MONGO
         String uri = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
 
         // Crear una instancia de MongoClient
@@ -42,6 +50,28 @@ public class ManejadorDepartamentos {
 
         // Cerrar la conexión
         mongoClient.close();
+
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
+
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Ejemplo de inserción en la tabla DEPARTAMENTOS
+            String sqlDepartamentos = "INSERT INTO DEPARTAMENTOS (COD_DEPARTAMENTO, NOM_DEPARTAMENTO) VALUES (?, ?)";
+            PreparedStatement declaraciónDepartamentos = conexión.prepareStatement(sqlDepartamentos);
+            declaraciónDepartamentos.setInt(1, codigo); // Valor para COD_DEPARTAMENTO
+            declaraciónDepartamentos.setString(2, nombre); // Valor para NOM_DEPARTAMENTO
+            declaraciónDepartamentos.executeUpdate();
+
+            // Realiza inserciones similares para las otras tablas
+
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -8,6 +8,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import javax.swing.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +45,29 @@ public class ManejadorSedes {
 
         // Cerrar la conexión
         mongoClient.close();
+
+        //POSTGRESQL
+        String url = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuario = "postgres";
+        String contraseña = "admin123";
+
+        try {
+            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Ejemplo de inserción en la tabla SEDES
+            String sqlSedes = "INSERT INTO SEDES (COD_SEDE, NOM_SEDE, COD_CIUDAD) VALUES (?, ?, ?)";
+            PreparedStatement declaraciónSedes = conexión.prepareStatement(sqlSedes);
+            declaraciónSedes.setInt(1, codigo); // Valor para COD_SEDE
+            declaraciónSedes.setString(2, nombre); // Valor para NOM_SEDE
+            declaraciónSedes.setInt(3, codigoFk); // Valor para COD_CIUDAD
+            declaraciónSedes.executeUpdate();
+
+            // Realiza inserciones similares para las otras tablas
+
+            conexión.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

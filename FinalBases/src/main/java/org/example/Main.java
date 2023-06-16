@@ -20,21 +20,21 @@ public class Main {
 
     public static void Menu() {
 
-        int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
+        int op = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
                 "1. Departamentos\n" +
-                "2. Cuidades\n" +
+                "2. Ciudades\n" +
                 "3. Sedes\n" +
                 "4. Empleados\n" +
                 "0. salir"));
 
         do {
-            switch (opcion) {
+            switch (op) {
 
                 case 1:
                     OpcionDepartamentos();
                     break;
                 case 2:
-                    OpcionCuidades();
+                    OpcionCiudades();
                     break;
                 case 3:
                     OpcionSedes();
@@ -42,62 +42,73 @@ public class Main {
                 case 4:
                     OpcionEmpleados();
                     break;
+                case 0:
+                    JOptionPane.showMessageDialog(null, "Adios!");
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
             }
 
-        } while (opcion != 0);
+        } while (op != 0);
     }
 
     public static void OpcionDepartamentos() {
 
-        int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Po00r favor ingrese una accion para departamentos\n\n" +
+        int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una accion para departamentos\n\n" +
                 "1. Ingresar\n" +
                 "2. Consultar\n" +
                 "3. Modificar\n" +
                 "4. Eliminar\n" +
-                "0. salir"));
+                "0. Regresar\n"));
 
         switch (opcion) {
             case 1:
                 ManejadorDepartamentos.ingresarDepartamento();
                 break;
             case 2:
-
+                ManejadorDepartamentos.consultarDepartamento();
                 break;
             case 3:
-
+                ManejadorDepartamentos.modificarDepartamento();
                 break;
             case 4:
-
+                ManejadorDepartamentos.eliminarDepartamento();
                 break;
             case 0:
+                Menu();
                 break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
         }
     }
 
-    public static void OpcionCuidades() {
+    public static void OpcionCiudades() {
 
         int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una accion para cuidades\n\n" +
                 "1. Ingresar\n" +
                 "2. Consultar\n" +
                 "3. Modificar\n" +
                 "4. Eliminar\n" +
-                "0. salir"));
+                "0. Regresar\n"));
 
         switch (opcion) {
             case 1:
-                ManejadorCuidades.ingresarCuidad();
+                ManejadorCiudades.ingresarCiudad();
                 break;
             case 2:
-                ManejadorCuidades.consultarCuidad();
+                ManejadorCiudades.consultarCiudad();
                 break;
             case 3:
-                ManejadorCuidades.modificarCuidad();
+                ManejadorCiudades.modificarCiudad();
                 break;
             case 4:
-                ManejadorCuidades.eliminarCuidad();
+                ManejadorCiudades.eliminarCiudad();
                 break;
             case 0:
+                Menu();
                 break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
         }
     }
 
@@ -108,7 +119,7 @@ public class Main {
                 "2. Consultar\n" +
                 "3. Modificar\n" +
                 "4. Eliminar\n" +
-                "0. salir"));
+                "0. Regresar\n"));
 
         switch (opcion) {
             case 1:
@@ -124,7 +135,10 @@ public class Main {
                 ManejadorSedes.eliminarSede();
                 break;
             case 0:
+                Menu();
                 break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
         }
     }
 
@@ -135,7 +149,7 @@ public class Main {
                 "2. Consultar\n" +
                 "3. Modificar\n" +
                 "4. Eliminar\n" +
-                "0. salir"));
+                "0. Regresar\n"));
 
         switch (opcion) {
             case 1:
@@ -151,7 +165,10 @@ public class Main {
                 ManejadorEmpleados.eliminarEmpleado();
                 break;
             case 0:
+                Menu();
                 break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
         }
     }
 

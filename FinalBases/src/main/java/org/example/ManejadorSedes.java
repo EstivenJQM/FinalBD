@@ -3,6 +3,7 @@ package org.example;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -83,8 +84,41 @@ public class ManejadorSedes {
     }
 
     public static void modificarSede() {
-        // Lógica para ingresar un nuevo evento en MongoDB
-        // Puedes utilizar clases de modelo como `Evento` y métodos de conexión a MongoDB aquí
+
+        String uri = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
+
+        // Crear una instancia de MongoClient
+        MongoClient mongoClient = MongoClients.create(uri);
+
+        // Obtener la base de datos
+        MongoDatabase database = mongoClient.getDatabase("Eventos");
+
+        // Obtener la colección "Sedes"
+        MongoCollection<Document> sedesCollection = database.getCollection("sedes");
+
+
+        // Se pide el código de la sede a modificar
+        int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la sede a modificar"));
+
+        // Crear un filtro de búsqueda para encontrar la sede a modificar
+        Bson filtro = Filters.eq("cod_sede", codigoModificar);
+
+        // Se piden los nuevos datos de la sede
+        String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre de la sede");
+        int nuevoCodigoCiudad = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código de la ciudad"));
+
+        // Crear un documento con los nuevos datos de la sede
+        Document datosActualizados = new Document("$set", new Document("nom_sede", nuevoNombre).append("cod_ciudad", nuevoCodigoCiudad));
+
+        // Actualizar la sede utilizando el filtro y los nuevos datos
+        UpdateResult resultado = sedesCollection.updateOne(filtro, datosActualizados);
+
+        // Verificar si se realizó la modificación correctamente
+        if (resultado.getModifiedCount() > 0) {
+            JOptionPane.showMessageDialog(null, "La sede se modificó correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontró una sede con el código especificado.");
+        }
     }
 
     public static void eliminarSede() {

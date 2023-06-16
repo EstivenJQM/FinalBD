@@ -3,6 +3,7 @@ package org.example;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -82,6 +83,40 @@ public class ManejadorCiudades {
 
     public static void modificarCiudad() {
 
+        String uri = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
+
+        // Crear una instancia de MongoClient
+        MongoClient mongoClient = MongoClients.create(uri);
+
+        // Obtener la base de datos
+        MongoDatabase database = mongoClient.getDatabase("Eventos");
+
+
+        // Obtener la colección "Ciudades"
+        MongoCollection<Document> ciudadesCollection = database.getCollection("ciudades");
+
+        // Se pide el código de la ciudad a modificar
+        int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la ciudad a modificar"));
+
+        // Crear un filtro de búsqueda para encontrar la ciudad a modificar
+        Bson filtro = Filters.eq("cod_ciudad", codigoModificar);
+
+        // Se piden los nuevos datos de la ciudad
+        String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre de la ciudad");
+        int nuevoCodigoCiudad = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código del ciudad"));
+
+        // Crear un documento con los nuevos datos de la ciudad
+        Document datosActualizados = new Document("$set", new Document("nom_ciudad", nuevoNombre).append("cod_ciudad", nuevoCodigoCiudad));
+
+        // Actualizar la ciudad utilizando el filtro y los nuevos datos
+        UpdateResult resultado = ciudadesCollection.updateOne(filtro, datosActualizados);
+
+        // Verificar si se realizó la modificación correctamente
+        if (resultado.getModifiedCount() > 0) {
+            JOptionPane.showMessageDialog(null, "La ciudad se modificó correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontró una ciudad con el código especificado.");
+        }
 
 
     }

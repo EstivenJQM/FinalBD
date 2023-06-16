@@ -3,6 +3,7 @@ package org.example;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -113,22 +114,35 @@ public class ManejadorEmpleados {
         // Obtener la colección "empleados"
         MongoCollection<Document> empleadosCollection = database.getCollection("empleados");
 
-        // Se pide el código de el empleado a eliminar
-        String codigoEliminar = JOptionPane.showInputDialog(null, "Por favor ingrese el código del empleado a eliminar");
+        // Se pide la identificación del empleado a modificar
+        String identificacionModificar = JOptionPane.showInputDialog(null, "Por favor ingrese la identificación del empleado a modificar");
 
-        // Crear un filtro de eliminación para buscar por el código de el empleado
-        Bson filtro = Filters.eq("id_empleado", codigoEliminar);
+        // Crear un filtro de búsqueda para encontrar el empleado a modificar
+        Bson filtro = Filters.eq("id_empleado", identificacionModificar);
 
-        // Eliminar la empleado utilizando el filtro
-        DeleteResult resultado = empleadosCollection.deleteOne(filtro);
+        // Se piden los nuevos datos del empleado
+        String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre del empleado");
+        String nuevoApellido = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo apellido del empleado");
+        String nuevoEmail = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo email del empleado");
+        int nuevoCodigoSede = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código de la sede"));
+        int nuevoCodigoCiudad = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código de la ciudad"));
 
-        // Verificar si se eliminó correctamente el empleado
-        if (resultado.getDeletedCount() > 0) {
-            JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente.");
+        // Crear un documento con los nuevos datos del empleado
+        Document datosActualizados = new Document("$set", new Document("nom_empleado", nuevoNombre)
+                .append("ape_empleado", nuevoApellido)
+                .append("email_empleado", nuevoEmail)
+                .append("cod_sede", nuevoCodigoSede)
+                .append("cod_ciudad", nuevoCodigoCiudad));
+
+        // Actualizar el empleado utilizando el filtro y los nuevos datos
+        UpdateResult resultado = empleadosCollection.updateOne(filtro, datosActualizados);
+
+        // Verificar si se realizó la modificación correctamente
+        if (resultado.getModifiedCount() > 0) {
+            JOptionPane.showMessageDialog(null, "El empleado se modificó correctamente.");
         } else {
-            JOptionPane.showMessageDialog(null, "No se encontró una empleado con el código especificado.");
+            JOptionPane.showMessageDialog(null, "No se encontró un empleado con la identificación especificada.");
         }
-
     }
 
     public static void eliminarEmpleado() {

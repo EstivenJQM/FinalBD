@@ -3,6 +3,7 @@ package org.example;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -96,20 +97,26 @@ public class ManejadorDepartamentos {
         // Obtener la colección "departamentos"
         MongoCollection<Document> departamentosCollection = database.getCollection("departamentos");
 
-        // Se pide el código de el departamento a eliminar
-        int codigoEliminar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código del departamento a eliminar"));
+        // Se pide el código del departamento a modificar
+        int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código del departamento a modificar"));
 
-        // Crear un filtro de eliminación para buscar por el código de la departamento
-        Bson filtro = Filters.eq("cod_departamento", codigoEliminar);
+        // Crear un filtro de búsqueda para encontrar el departamento a modificar
+        Bson filtro = Filters.eq("cod_departamento", codigoModificar);
 
-        // Eliminar el departamento utilizando el filtro
-        DeleteResult resultado = departamentosCollection.deleteOne(filtro);
+        // Se piden los nuevos datos del departamento
+        String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre del departamento");
 
-        // Verificar si se eliminó correctamente el departamento
-        if (resultado.getDeletedCount() > 0) {
-            JOptionPane.showMessageDialog(null, "El departamento se eliminó correctamente.");
+        // Crear un documento con los nuevos datos del departamento
+        Document datosActualizados = new Document("$set", new Document("nom_departamento", nuevoNombre));
+
+        // Actualizar el departamento utilizando el filtro y los nuevos datos
+        UpdateResult resultado = departamentosCollection.updateOne(filtro, datosActualizados);
+
+        // Verificar si se realizó la modificación correctamente
+        if (resultado.getModifiedCount() > 0) {
+            JOptionPane.showMessageDialog(null, "El departamento se modificó correctamente.");
         } else {
-            JOptionPane.showMessageDialog(null, "No se encontró una departamento con el código especificado.");
+            JOptionPane.showMessageDialog(null, "No se encontró un departamento con el código especificado.");
         }
 
     }

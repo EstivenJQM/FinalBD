@@ -103,10 +103,10 @@ public class ManejadorCiudades {
 
         // Se piden los nuevos datos de la ciudad
         String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre de la ciudad");
-        int nuevoCodigoCiudad = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código del ciudad"));
+        int nuevoCodigoDepartamento = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código del departamento"));
 
         // Crear un documento con los nuevos datos de la ciudad
-        Document datosActualizados = new Document("$set", new Document("nom_ciudad", nuevoNombre).append("cod_ciudad", nuevoCodigoCiudad));
+        Document datosActualizados = new Document("$set", new Document("nom_ciudad", nuevoNombre).append("cod_departamento", nuevoCodigoDepartamento));
 
         // Actualizar la ciudad utilizando el filtro y los nuevos datos
         UpdateResult resultado = ciudadesCollection.updateOne(filtro, datosActualizados);

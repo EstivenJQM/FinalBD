@@ -26,27 +26,6 @@ public class ManejadorEmpleados {
         String contraseñaPostgreSQL = "admin123";
         String uriMongoDB = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
 
-        // Crear la ventana y los componentes gráficos
-        JFrame ventana = new JFrame("Ingreso de Empleado");
-
-        // Etiquetas y campos de texto para los datos del empleado
-        JLabel etiquetaId = new JLabel("ID:");
-        JTextField campoId = new JTextField(20);
-        JLabel etiquetaNombre = new JLabel("Nombre:");
-        JTextField campoNombre = new JTextField(20);
-        JLabel etiquetaApellido = new JLabel("Apellido:");
-        JTextField campoApellido = new JTextField(20);
-        JLabel etiquetaEmail = new JLabel("Email:");
-        JTextField campoEmail = new JTextField(20);
-
-        // Menús desplegables para seleccionar la sede, la ciudad y el tipo de contrato
-        JLabel etiquetaSede = new JLabel("Sede:");
-        JComboBox<String> comboBoxSedes = new JComboBox<>();
-        JLabel etiquetaCiudad = new JLabel("Ciudad:");
-        JComboBox<String> comboBoxCiudades = new JComboBox<>();
-        JLabel etiquetaContrato = new JLabel("Tipo de Contrato:");
-        JComboBox<String> comboBoxContratos = new JComboBox<>();
-
         try {
             // Conexión a PostgreSQL
             Connection conexiónPostgreSQL = DriverManager.getConnection(urlPostgreSQL, usuarioPostgreSQL,
@@ -63,22 +42,27 @@ public class ManejadorEmpleados {
             ResultSet resultadoSedes = declaraciónSedes.executeQuery();
             ResultSet resultadoContratos = declaraciónContratos.executeQuery();
 
-            // Agregar las ciudades al JComboBox de ciudades
+            // Crear arrays de strings para almacenar las opciones
+            List<String> ciudades = new ArrayList<>();
+            List<String> sedes = new ArrayList<>();
+            List<String> contratos = new ArrayList<>();
+
+            // Agregar las ciudades al array de ciudades
             while (resultadoCiudades.next()) {
                 String nombreCiudad = resultadoCiudades.getString("NOM_CIUDAD");
-                comboBoxCiudades.addItem(nombreCiudad);
+                ciudades.add(nombreCiudad);
             }
 
-            // Agregar las sedes al JComboBox de sedes
+            // Agregar las sedes al array de sedes
             while (resultadoSedes.next()) {
                 String nombreSede = resultadoSedes.getString("NOM_SEDE");
-                comboBoxSedes.addItem(nombreSede);
+                sedes.add(nombreSede);
             }
 
-            // Agregar los contratos al JComboBox de contratos
+            // Agregar los contratos al array de contratos
             while (resultadoContratos.next()) {
                 String nombreContrato = resultadoContratos.getString("NOM_CONTRATO");
-                comboBoxContratos.addItem(nombreContrato);
+                contratos.add(nombreContrato);
             }
 
             // Cerrar conexiones y declaraciones de PostgreSQL
@@ -89,68 +73,46 @@ public class ManejadorEmpleados {
             declaraciónSedes.close();
             declaraciónContratos.close();
             conexiónPostgreSQL.close();
+
+            // Cuadros de diálogo para ingresar los datos
+            String id = JOptionPane.showInputDialog(null, "Ingrese el ID:");
+            String nombre = JOptionPane.showInputDialog(null, "Ingrese el nombre:");
+            String apellido = JOptionPane.showInputDialog(null, "Ingrese el apellido:");
+            String email = JOptionPane.showInputDialog(null, "Ingrese el email:");
+
+            String sedeSeleccionada = (String) JOptionPane.showInputDialog(null, "Seleccione la sede:",
+                    "Selección de Sede", JOptionPane.PLAIN_MESSAGE, null, sedes.toArray(), null);
+
+            String ciudadSeleccionada = (String) JOptionPane.showInputDialog(null, "Seleccione la ciudad:",
+                    "Selección de Ciudad", JOptionPane.PLAIN_MESSAGE, null, ciudades.toArray(), null);
+
+            String contratoSeleccionado = (String) JOptionPane.showInputDialog(null, "Seleccione el tipo de contrato:",
+                    "Selección de Tipo de Contrato", JOptionPane.PLAIN_MESSAGE, null, contratos.toArray(), null);
+
+            // Conexión a MongoDB
+            MongoClient mongoClient = MongoClients.create(uriMongoDB);
+            MongoDatabase database = mongoClient.getDatabase("Eventos");
+            MongoCollection<Document> collection = database.getCollection("empleados");
+
+            // Crear un documento de MongoDB con los datos del empleado
+            Document documento = new Document("id", id)
+                    .append("nombre", nombre)
+                    .append("apellido", apellido)
+                    .append("email", email)
+                    .append("sede", sedeSeleccionada)
+                    .append("ciudad", ciudadSeleccionada)
+                    .append("tipo_contrato", contratoSeleccionado);
+
+            // Insertar el documento en la colección de MongoDB
+            collection.insertOne(documento);
+
+            // Cerrar conexión de MongoDB
+            mongoClient.close();
+
+            JOptionPane.showMessageDialog(null, "Empleado guardado en MongoDB.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        // Botón para guardar en MongoDB
-        JButton botonGuardar = new JButton("Guardar en MongoDB");
-
-        // Acción del botón
-        botonGuardar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String id = campoId.getText();
-                String nombre = campoNombre.getText();
-                String apellido = campoApellido.getText();
-                String email = campoEmail.getText();
-                String sedeSeleccionada = (String) comboBoxSedes.getSelectedItem();
-                String ciudadSeleccionada = (String) comboBoxCiudades.getSelectedItem();
-                String contratoSeleccionado = (String) comboBoxContratos.getSelectedItem();
-
-                // Conexión a MongoDB
-                MongoClient mongoClient = MongoClients.create(uriMongoDB);
-                MongoDatabase database = mongoClient.getDatabase("Eventos");
-                MongoCollection<Document> collection = database.getCollection("empleados");
-
-                // Crear un documento de MongoDB con los datos del empleado
-                Document documento = new Document("id", id)
-                        .append("nombre", nombre)
-                        .append("apellido", apellido)
-                        .append("email", email)
-                        .append("sede", sedeSeleccionada)
-                        .append("ciudad", ciudadSeleccionada)
-                        .append("tipo_contrato", contratoSeleccionado);
-
-                // Insertar el documento en la colección de MongoDB
-                collection.insertOne(documento);
-
-                // Cerrar conexión de MongoDB
-                mongoClient.close();
-
-                JOptionPane.showMessageDialog(null, "Empleado guardado en MongoDB.");
-            }
-        });
-
-        // Agregar componentes a la ventana
-        ventana.add(etiquetaId);
-        ventana.add(campoId);
-        ventana.add(etiquetaNombre);
-        ventana.add(campoNombre);
-        ventana.add(etiquetaApellido);
-        ventana.add(campoApellido);
-        ventana.add(etiquetaEmail);
-        ventana.add(campoEmail);
-        ventana.add(etiquetaSede);
-        ventana.add(comboBoxSedes);
-        ventana.add(etiquetaCiudad);
-        ventana.add(comboBoxCiudades);
-        ventana.add(etiquetaContrato);
-        ventana.add(comboBoxContratos);
-        ventana.add(botonGuardar);
-        ventana.setLayout(new java.awt.FlowLayout());
-        ventana.setSize(300, 300);
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventana.setVisible(true);
 
     }
 
@@ -220,6 +182,57 @@ public class ManejadorEmpleados {
 
         // Obtener la colección "empleados"
         MongoCollection<Document> empleadosCollection = database.getCollection("empleados");
+
+        /*// Obtener de postgresql
+
+        // Conexión a PostgreSQL
+        String urlPostgreSQL = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuarioPostgreSQL = "postgres";
+        String contraseñaPostgreSQL = "admin123";
+
+        Connection conexiónPostgreSQL = DriverManager.getConnection(urlPostgreSQL, usuarioPostgreSQL, contraseñaPostgreSQL);
+
+        // Consultas SQL para obtener los valores de sede, ciudad y tipo de contrato
+        String sqlSedes = "SELECT NOM_SEDE FROM SEDES";
+        String sqlCiudades = "SELECT NOM_CIUDAD FROM CIUDADES";
+        String sqlTiposContrato = "SELECT NOM_CONTRATO FROM CONTRATOS";
+
+        PreparedStatement declaraciónSedes = conexiónPostgreSQL.prepareStatement(sqlSedes);
+        PreparedStatement declaraciónCiudades = conexiónPostgreSQL.prepareStatement(sqlCiudades);
+        PreparedStatement declaraciónTiposContrato = conexiónPostgreSQL.prepareStatement(sqlTiposContrato);
+
+        ResultSet resultadoSedes = declaraciónSedes.executeQuery();
+        ResultSet resultadoCiudades = declaraciónCiudades.executeQuery();
+        ResultSet resultadoTiposContrato = declaraciónTiposContrato.executeQuery();
+
+        // Obtener los valores de sede, ciudad y tipo de contrato y almacenarlos en listas
+        List<String> sedes = new ArrayList<>();
+        List<String> ciudades = new ArrayList<>();
+        List<String> tiposContrato = new ArrayList<>();
+
+        while (resultadoSedes.next()) {
+            String nombreSede = resultadoSedes.getString("NOM_SEDE");
+            sedes.add(nombreSede);
+        }
+
+        while (resultadoCiudades.next()) {
+            String nombreCiudad = resultadoCiudades.getString("NOM_CIUDAD");
+            ciudades.add(nombreCiudad);
+        }
+
+        while (resultadoTiposContrato.next()) {
+            String nombreContrato = resultadoTiposContrato.getString("NOM_CONTRATO");
+            tiposContrato.add(nombreContrato);
+        }
+
+        // Cerrar conexiones y declaraciones de PostgreSQL
+        resultadoSedes.close();
+        resultadoCiudades.close();
+        resultadoTiposContrato.close();
+        declaraciónSedes.close();
+        declaraciónCiudades.close();
+        declaraciónTiposContrato.close();
+        conexiónPostgreSQL.close();*/
 
         // Se pide la identificación del empleado a modificar
         String identificacionModificar = JOptionPane.showInputDialog(null, "Por favor ingrese la identificación del empleado a modificar");

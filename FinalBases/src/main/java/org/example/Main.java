@@ -9,8 +9,7 @@ import com.mongodb.client.MongoDatabase;
 
 import javax.swing.*;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+
 public class Main {
     public static void main(String[] args) {
 
@@ -21,7 +20,7 @@ public class Main {
     public static void Menu() {
         int op;
 
-
+        do {
 
          op = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
                 "1. Departamentos\n" +
@@ -58,6 +57,7 @@ public class Main {
 
             }
 
+        } while (op != 0);
     }
 
     public static void OpcionDepartamentos() {

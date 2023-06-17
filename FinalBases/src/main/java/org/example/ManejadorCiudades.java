@@ -104,8 +104,6 @@ public class ManejadorCiudades {
         // Se pide el código de la ciudad a modificar
         int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la ciudad a modificar"));
 
-        /*// Crear un filtro de búsqueda para encontrar la ciudad a modificar
-        Bson filtro = Filters.eq("cod_ciudad", codigoModificar);*/
 
         // Se piden los nuevos datos de la ciudad
         String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre de la ciudad");

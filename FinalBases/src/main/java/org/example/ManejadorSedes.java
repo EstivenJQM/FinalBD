@@ -100,8 +100,6 @@ public class ManejadorSedes {
         // Se pide el código de la sede a modificar
         int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la sede a modificar"));
 
-        /*// Crear un filtro de búsqueda para encontrar la sede a modificar
-        Bson filtro = Filters.eq("cod_sede", codigoModificar);*/
 
         // Se piden los nuevos datos de la sede
         String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre de la sede");

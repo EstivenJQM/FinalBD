@@ -21,14 +21,16 @@ public class Main {
     public static void Menu() {
         int op;
 
-        do {
+
 
          op = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una opcion\n\n" +
                 "1. Departamentos\n" +
                 "2. Ciudades\n" +
                 "3. Sedes\n" +
-                "4. Empleados\n" +
+                "4. Contratos\n" +
+                "5. Empleados\n" +
                 "0. salir"));
+
 
 
             switch (op) {
@@ -43,6 +45,9 @@ public class Main {
                     OpcionSedes();
                     break;
                 case 4:
+                    OpcionContratos();
+                    break;
+                case 5:
                     OpcionEmpleados();
                     break;
                 case 0:
@@ -53,7 +58,6 @@ public class Main {
 
             }
 
-        } while (op != 0);
     }
 
     public static void OpcionDepartamentos() {
@@ -146,6 +150,38 @@ public class Main {
         }
     }
 
+    public static void OpcionContratos() {
+
+        int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese una accion para contratos\n\n" +
+                "1. Ingresar\n" +
+                "2. Consultar\n" +
+                "3. Modificar\n" +
+                "4. Eliminar\n" +
+                "0. Regresar\n"));
+
+
+        switch (opcion) {
+            case 1:
+                ManejadorContratos.ingresarContrato();
+                break;
+            case 2:
+                ManejadorContratos.consultarContrato();
+                break;
+            case 3:
+                ManejadorContratos.modificarContrato();
+                break;
+            case 4:
+                ManejadorContratos.eliminarContrato();
+                break;
+            case 0:
+                Menu();
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
+        }
+
+    }
+
     public static void OpcionEmpleados() {
 
         int opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese accion una para empleados\n\n" +
@@ -175,6 +211,8 @@ public class Main {
                 JOptionPane.showMessageDialog(null, "Opción inválida. Por favor ingrese una opción válida.");
         }
     }
+
+
 
 
 

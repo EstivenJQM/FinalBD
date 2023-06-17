@@ -2,81 +2,155 @@ package org.example;
 
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class ManejadorEmpleados {
 
     public static void ingresarEmpleado() {
 
-        String uri = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
+        String urlPostgreSQL = "jdbc:postgresql://localhost:5432/Eventos";
+        String usuarioPostgreSQL = "postgres";
+        String contraseñaPostgreSQL = "admin123";
+        String uriMongoDB = "mongodb+srv://admin:admin123@cluster0.jijwz3h.mongodb.net/?retryWrites=true&w=majority";
 
-        // Crear una instancia de MongoClient
-        MongoClient mongoClient = MongoClients.create(uri);
+        // Crear la ventana y los componentes gráficos
+        JFrame ventana = new JFrame("Ingreso de Empleado");
 
-        // Obtener la base de datos
-        MongoDatabase database = mongoClient.getDatabase("Eventos");
+        // Etiquetas y campos de texto para los datos del empleado
+        JLabel etiquetaId = new JLabel("ID:");
+        JTextField campoId = new JTextField(20);
+        JLabel etiquetaNombre = new JLabel("Nombre:");
+        JTextField campoNombre = new JTextField(20);
+        JLabel etiquetaApellido = new JLabel("Apellido:");
+        JTextField campoApellido = new JTextField(20);
+        JLabel etiquetaEmail = new JLabel("Email:");
+        JTextField campoEmail = new JTextField(20);
 
-        // Obtener la colección "empleados"
-        MongoCollection<Document> empleadosCollection = database.getCollection("empleados");
-
-        // Se piden los datos a ingresar
-        String identificacion = JOptionPane.showInputDialog(null, "Por favor ingrese el documento");
-        String nombres = JOptionPane.showInputDialog(null, "Por favor ingrese el nombre");
-        String apellidos = JOptionPane.showInputDialog(null, "Por favor ingrese los apellidos");
-        String email = JOptionPane.showInputDialog(null, "Por favor ingrese el email");
-        int codigoFk = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la ciudad"));
-        int codigoFk2 = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la sede"));
-
-        // Crear un nuevo documento
-        Document empleado = new Document("id_empleado", identificacion)
-                .append("nom_empleado", nombres)
-                .append("ape_empleado", apellidos)
-                .append("email_empleado", email)
-                .append("cod_ciudad", codigoFk)
-                .append("cod_sede", codigoFk2);
-
-        // Insertar el documento en la colección
-        empleadosCollection.insertOne(empleado);
-
-        // Cerrar la conexión
-        mongoClient.close();
-
-        //POSTGRESQL
-        String url = "jdbc:postgresql://localhost:5432/Eventos";
-        String usuario = "postgres";
-        String contraseña = "admin123";
+        // Menús desplegables para seleccionar la sede, la ciudad y el tipo de contrato
+        JLabel etiquetaSede = new JLabel("Sede:");
+        JComboBox<String> comboBoxSedes = new JComboBox<>();
+        JLabel etiquetaCiudad = new JLabel("Ciudad:");
+        JComboBox<String> comboBoxCiudades = new JComboBox<>();
+        JLabel etiquetaContrato = new JLabel("Tipo de Contrato:");
+        JComboBox<String> comboBoxContratos = new JComboBox<>();
 
         try {
-            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
+            // Conexión a PostgreSQL
+            Connection conexiónPostgreSQL = DriverManager.getConnection(urlPostgreSQL, usuarioPostgreSQL,
+                    contraseñaPostgreSQL);
 
-            // Ejemplo de inserción en la tabla EMPLEADOS
-            String sqlSedes = "INSERT INTO EMPLEADOS (ID_EMPLEADO, NOMBRES, APELLIDOS, EMAIL, COD_CIUDAD, COD_SEDE) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement declaraciónSedes = conexión.prepareStatement(sqlSedes);
-            declaraciónSedes.setString(1, identificacion); // Valor para ID_EMPLEADO
-            declaraciónSedes.setString(2, nombres); // Valor para NOMBRES
-            declaraciónSedes.setString(3, apellidos); // Valor para APELLIDO
-            declaraciónSedes.setString(4, email); // Valor para EMAIL
-            declaraciónSedes.setInt(5, codigoFk); // Valor para COD_CIUDAD
-            declaraciónSedes.setInt(6, codigoFk2); // Valor para COD_SEDE
-            declaraciónSedes.executeUpdate();
+            // Consultas SQL para obtener las ciudades, sedes y contratos
+            String sqlCiudades = "SELECT NOM_CIUDAD FROM CIUDADES";
+            String sqlSedes = "SELECT NOM_SEDE FROM SEDES";
+            String sqlContratos = "SELECT NOM_CONTRATO FROM CONTRATOS";
+            PreparedStatement declaraciónCiudades = conexiónPostgreSQL.prepareStatement(sqlCiudades);
+            PreparedStatement declaraciónSedes = conexiónPostgreSQL.prepareStatement(sqlSedes);
+            PreparedStatement declaraciónContratos = conexiónPostgreSQL.prepareStatement(sqlContratos);
+            ResultSet resultadoCiudades = declaraciónCiudades.executeQuery();
+            ResultSet resultadoSedes = declaraciónSedes.executeQuery();
+            ResultSet resultadoContratos = declaraciónContratos.executeQuery();
 
-            // Realiza inserciones similares para las otras tablas
+            // Agregar las ciudades al JComboBox de ciudades
+            while (resultadoCiudades.next()) {
+                String nombreCiudad = resultadoCiudades.getString("NOM_CIUDAD");
+                comboBoxCiudades.addItem(nombreCiudad);
+            }
 
-            conexión.close();
+            // Agregar las sedes al JComboBox de sedes
+            while (resultadoSedes.next()) {
+                String nombreSede = resultadoSedes.getString("NOM_SEDE");
+                comboBoxSedes.addItem(nombreSede);
+            }
+
+            // Agregar los contratos al JComboBox de contratos
+            while (resultadoContratos.next()) {
+                String nombreContrato = resultadoContratos.getString("NOM_CONTRATO");
+                comboBoxContratos.addItem(nombreContrato);
+            }
+
+            // Cerrar conexiones y declaraciones de PostgreSQL
+            resultadoCiudades.close();
+            resultadoSedes.close();
+            resultadoContratos.close();
+            declaraciónCiudades.close();
+            declaraciónSedes.close();
+            declaraciónContratos.close();
+            conexiónPostgreSQL.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        // Botón para guardar en MongoDB
+        JButton botonGuardar = new JButton("Guardar en MongoDB");
+
+        // Acción del botón
+        botonGuardar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String id = campoId.getText();
+                String nombre = campoNombre.getText();
+                String apellido = campoApellido.getText();
+                String email = campoEmail.getText();
+                String sedeSeleccionada = (String) comboBoxSedes.getSelectedItem();
+                String ciudadSeleccionada = (String) comboBoxCiudades.getSelectedItem();
+                String contratoSeleccionado = (String) comboBoxContratos.getSelectedItem();
+
+                // Conexión a MongoDB
+                MongoClient mongoClient = MongoClients.create(uriMongoDB);
+                MongoDatabase database = mongoClient.getDatabase("Eventos");
+                MongoCollection<Document> collection = database.getCollection("empleados");
+
+                // Crear un documento de MongoDB con los datos del empleado
+                Document documento = new Document("id", id)
+                        .append("nombre", nombre)
+                        .append("apellido", apellido)
+                        .append("email", email)
+                        .append("sede", sedeSeleccionada)
+                        .append("ciudad", ciudadSeleccionada)
+                        .append("tipo_contrato", contratoSeleccionado);
+
+                // Insertar el documento en la colección de MongoDB
+                collection.insertOne(documento);
+
+                // Cerrar conexión de MongoDB
+                mongoClient.close();
+
+                JOptionPane.showMessageDialog(null, "Empleado guardado en MongoDB.");
+            }
+        });
+
+        // Agregar componentes a la ventana
+        ventana.add(etiquetaId);
+        ventana.add(campoId);
+        ventana.add(etiquetaNombre);
+        ventana.add(campoNombre);
+        ventana.add(etiquetaApellido);
+        ventana.add(campoApellido);
+        ventana.add(etiquetaEmail);
+        ventana.add(campoEmail);
+        ventana.add(etiquetaSede);
+        ventana.add(comboBoxSedes);
+        ventana.add(etiquetaCiudad);
+        ventana.add(comboBoxCiudades);
+        ventana.add(etiquetaContrato);
+        ventana.add(comboBoxContratos);
+        ventana.add(botonGuardar);
+        ventana.setLayout(new java.awt.FlowLayout());
+        ventana.setSize(300, 300);
+        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventana.setVisible(true);
 
     }
 
@@ -97,7 +171,7 @@ public class ManejadorEmpleados {
         String codigoConsulta = JOptionPane.showInputDialog(null, "Por favor ingrese el id del empleado a consultar");
 
         // Crear un filtro de consulta para buscar por el código de la empleado
-        Bson filtro = Filters.eq("id_empleado", codigoConsulta);
+        Bson filtro = Filters.eq("id", codigoConsulta);
 
         // Realizar la consulta utilizando el filtro
         FindIterable<Document> empleadosConsulta = empleadosCollection.find(filtro);
@@ -107,18 +181,22 @@ public class ManejadorEmpleados {
 
         // Iterar sobre los empleados encontrados y obtener los datos de cada uno
         for (Document empleado : empleadosConsulta) {
-            String nombreEmpleado = empleado.getString("nom_empleado");
-            String apellidoEmpleado = empleado.getString("ape_empleado");
-            String correoEmpleado = empleado.getString("email_empleado");
-            int sedeEmpleado = empleado.getInteger("cod_sede");
-            int ciudadEmpleado = empleado.getInteger("cod_ciudad");
+            String idEmpleado = empleado.getString("id");
+            String nombreEmpleado = empleado.getString("nombre");
+            String apellidoEmpleado = empleado.getString("apellido");
+            String correoEmpleado = empleado.getString("email");
+            String ciudadEmpleado = empleado.getString("ciudad");
+            String sedeEmpleado = empleado.getString("sede");
+            String contratoEmpleado = empleado.getString("tipo_contrato");
 
             // Agregar los datos del empleado a la lista
-            nombresEmpleadosConsulta.add("Nombre: " + nombreEmpleado +
-                    ", Apellido: " + apellidoEmpleado +
-                    ", Correo: " + correoEmpleado +
-                    ", Sede: " + sedeEmpleado +
-                    ", Ciudad: " + ciudadEmpleado);
+            nombresEmpleadosConsulta.add("ID: " + idEmpleado + "\n" +
+                    "Nombre: " + nombreEmpleado + "\n" +
+                    "Apellido: " + apellidoEmpleado + "\n" +
+                    "Correo: " + correoEmpleado + "\n" +
+                    "Ciudad: " + ciudadEmpleado + "\n" +
+                    "Sede: " + sedeEmpleado + "\n" +
+                    "Tipo contrato: " + contratoEmpleado);
         }
 
         // Mostrar los datos de los empleados encontrados en un cuadro de diálogo
@@ -127,7 +205,6 @@ public class ManejadorEmpleados {
         } else {
             JOptionPane.showMessageDialog(null, "No se encontraron empleados con el código especificado.");
         }
-
 
     }
 
@@ -148,21 +225,23 @@ public class ManejadorEmpleados {
         String identificacionModificar = JOptionPane.showInputDialog(null, "Por favor ingrese la identificación del empleado a modificar");
 
         // Crear un filtro de búsqueda para encontrar el empleado a modificar
-        Bson filtro = Filters.eq("id_empleado", identificacionModificar);
+        Bson filtro = Filters.eq("id", identificacionModificar);
 
         // Se piden los nuevos datos del empleado
         String nuevoNombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo nombre del empleado");
         String nuevoApellido = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo apellido del empleado");
         String nuevoEmail = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo email del empleado");
-        int nuevoCodigoSede = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código de la sede"));
-        int nuevoCodigoCiudad = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo código de la ciudad"));
+        String nuevoSede = JOptionPane.showInputDialog(null, "Por favor ingrese la nueva sede");
+        String nuevoCiudad = JOptionPane.showInputDialog(null, "Por favor ingrese la nueva ciudad");
+        String nuevoContrato = JOptionPane.showInputDialog(null, "Por favor ingrese el nuevo tipo de contrato");
 
         // Crear un documento con los nuevos datos del empleado
-        Document datosActualizados = new Document("$set", new Document("nom_empleado", nuevoNombre)
-                .append("ape_empleado", nuevoApellido)
-                .append("email_empleado", nuevoEmail)
-                .append("cod_sede", nuevoCodigoSede)
-                .append("cod_ciudad", nuevoCodigoCiudad));
+        Document datosActualizados = new Document("$set", new Document("nombre", nuevoNombre)
+                .append("apellido", nuevoApellido)
+                .append("email", nuevoEmail)
+                .append("sede", nuevoSede)
+                .append("ciudad", nuevoCiudad)
+                .append("tipo_contrato", nuevoContrato));
 
         // Actualizar el empleado utilizando el filtro y los nuevos datos
         UpdateResult resultado = empleadosCollection.updateOne(filtro, datosActualizados);
@@ -173,6 +252,7 @@ public class ManejadorEmpleados {
         } else {
             JOptionPane.showMessageDialog(null, "No se encontró un empleado con la identificación especificada.");
         }
+
     }
 
     public static void eliminarEmpleado() {
@@ -191,49 +271,17 @@ public class ManejadorEmpleados {
         // Se pide el código de el empleado a eliminar
         String codigoEliminar = JOptionPane.showInputDialog(null, "Por favor ingrese el código del empleado a eliminar");
 
+        // Crear un filtro de eliminación para buscar por el código de el empleado
+        Bson filtro = Filters.eq("id", codigoEliminar);
 
+        // Eliminar la empleado utilizando el filtro
+        DeleteResult resultado = empleadosCollection.deleteOne(filtro);
 
-        //POSTGRESQL
-        String url = "jdbc:postgresql://localhost:5432/Eventos";
-        String usuario = "postgres";
-        String contraseña = "admin123";
-
-        try {
-            Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
-
-            // Consulta SQL de eliminación de empleado
-            String sql = "DELETE FROM EMPLEADOS WHERE ID_EMPLEADO = ?";
-            PreparedStatement declaración = conexión.prepareStatement(sql);
-
-            // Valor para la eliminación
-            declaración.setString(1, codigoEliminar); // ID del empleado a eliminar
-
-            int filasEliminadas = declaración.executeUpdate();
-            if (filasEliminadas > 0) {
-                JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente de postgres.");
-
-                //Borrado Mongo
-                // Crear un filtro de eliminación para buscar por el código de el empleado
-                Bson filtro = Filters.eq("id_empleado", codigoEliminar);
-
-                // Eliminar la empleado utilizando el filtro
-                DeleteResult resultado = empleadosCollection.deleteOne(filtro);
-
-                // Verificar si se eliminó correctamente el empleado
-                if (resultado.getDeletedCount() > 0) {
-                    JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente de mongo.");
-                } else {
-                    JOptionPane.showMessageDialog(null, "No se encontró una empleado con el código especificado.");
-                }
-
-            } else {
-                System.out.println("No se encontró el empleado a eliminar.");
-            }
-
-            declaración.close();
-            conexión.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // Verificar si se eliminó correctamente el empleado
+        if (resultado.getDeletedCount() > 0) {
+            JOptionPane.showMessageDialog(null, "El empleado se eliminó correctamente de mongo.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontró una empleado con el código especificado.");
         }
 
     }

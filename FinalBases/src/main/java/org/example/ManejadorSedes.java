@@ -30,7 +30,7 @@ public class ManejadorSedes {
         try {
             Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
 
-            // Ejemplo de inserción en la tabla SEDES
+
             String sqlSedes = "INSERT INTO SEDES (COD_SEDE, NOM_SEDE, COD_CIUDAD) VALUES (?, ?, ?)";
             PreparedStatement declaraciónSedes = conexión.prepareStatement(sqlSedes);
             declaraciónSedes.setInt(1, codigo); // Valor para COD_SEDE

@@ -19,7 +19,7 @@ public class ManejadorContratos {
         try {
             Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
 
-            // Ejemplo de inserción en la tabla CONTRATOS
+
             String sqlContratos = "INSERT INTO CONTRATOS (COD_CONTRATO, NOM_CONTRATO) VALUES (?, ?)";
             PreparedStatement declaraciónContratos = conexión.prepareStatement(sqlContratos);
 

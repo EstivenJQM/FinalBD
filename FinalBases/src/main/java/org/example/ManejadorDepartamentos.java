@@ -35,7 +35,7 @@ public class ManejadorDepartamentos {
         try {
             Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
 
-            // Ejemplo de inserción en la tabla DEPARTAMENTOS
+
             String sqlDepartamentos = "INSERT INTO DEPARTAMENTOS (COD_DEPARTAMENTO, NOM_DEPARTAMENTO) VALUES (?, ?)";
             PreparedStatement declaraciónDepartamentos = conexión.prepareStatement(sqlDepartamentos);
 

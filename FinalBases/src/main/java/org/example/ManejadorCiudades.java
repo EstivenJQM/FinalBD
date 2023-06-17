@@ -17,7 +17,7 @@ public class ManejadorCiudades {
     public static void ingresarCiudad() {
 
 
-        // Se piden los datos a ingresar
+
         int codigo = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo de la ciudad"));
         String nombre = JOptionPane.showInputDialog(null, "Por favor ingrese el nombre de la ciudad");
         int codigoFk = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el codigo del departamento"));
@@ -30,7 +30,7 @@ public class ManejadorCiudades {
         try {
             Connection conexión = DriverManager.getConnection(url, usuario, contraseña);
 
-            // Ejemplo de inserción en la tabla CIUDADES
+
             String sqlCiudades = "INSERT INTO CIUDADES (COD_CIUDAD, NOM_CIUDAD, COD_DEPARTAMENTO) VALUES (?, ?, ?)";
             PreparedStatement declaraciónCiudades = conexión.prepareStatement(sqlCiudades);
             declaraciónCiudades.setInt(1, codigo); // Valor para COD_CIUDAD
@@ -38,7 +38,7 @@ public class ManejadorCiudades {
             declaraciónCiudades.setInt(3, codigoFk); // Valor para COD_DEPARTAMENTO
             int filasInsertadas = declaraciónCiudades.executeUpdate();
 
-            // Verificar si se insertó correctamente la ciudad
+
             if (filasInsertadas > 0) {
                 JOptionPane.showMessageDialog(null, "La ciudad se insertó correctamente.");
 
@@ -101,7 +101,7 @@ public class ManejadorCiudades {
 
 
 
-        // Se pide el código de la ciudad a modificar
+
         int codigoModificar = Integer.parseInt(JOptionPane.showInputDialog(null, "Por favor ingrese el código de la ciudad a modificar"));
 
 
